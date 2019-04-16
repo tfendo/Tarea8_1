@@ -4,6 +4,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
@@ -15,6 +17,8 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
 
     private Button boton;
+    private Button update;
+    private Button cancel;
     private static final String PRIMARY_CHANNEL_ID = "primary_notifications_channel";
     private NotificationManager manager;
     private static final int NOTIFICATION_ID = 0;
@@ -31,6 +35,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         createNotificationChannel();
+
+        update = findViewById(R.id.update);
+        update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateNotification();
+            }
+        });
+
+        cancel = findViewById(R.id.cancel);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelNotification();
+            }
+        });
+
+        setNotificationButtonState(true, false, false);
     }
 
     private NotificationCompat.Builder getNotificationBuilder(){
@@ -50,6 +72,22 @@ public class MainActivity extends AppCompatActivity {
     public void sendNotification(){
         NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
         manager.notify(NOTIFICATION_ID, notifyBuilder.build());
+        setNotificationButtonState(false, true, true);
+    }
+
+    public void updateNotification(){
+        Bitmap imagen = BitmapFactory.decodeResource(getResources(), R.drawable.mascot_1);
+        NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
+        notifyBuilder.setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(imagen)
+                        .setBigContentTitle("Notification Updated!"));
+        manager.notify(NOTIFICATION_ID, notifyBuilder.build());
+        setNotificationButtonState(false, false, true);
+    }
+
+    public void cancelNotification(){
+        manager.cancel(NOTIFICATION_ID);
+        setNotificationButtonState(true, false, false);
     }
 
     public void createNotificationChannel(){
@@ -63,5 +101,11 @@ public class MainActivity extends AppCompatActivity {
             notificationChannel.setDescription("Notification from Mascot");
             manager.createNotificationChannel(notificationChannel);
         }
+    }
+
+    private void setNotificationButtonState(Boolean notifyActivo, Boolean updateActivo, Boolean cancelActivo){
+        boton.setEnabled(notifyActivo);
+        update.setEnabled(updateActivo);
+        cancel.setEnabled(cancelActivo);
     }
 }
